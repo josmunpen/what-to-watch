@@ -5,136 +5,99 @@ Uses the TMDB v3 REST API with a Bearer token (API Read Access Token).
 Genre IDs are stored statically – they have been stable for years.
 """
 
-from dataclasses import dataclass
 from typing import Any
-import httpx
-from app.config import settings
 
-# ---------------------------------------------------------------------------
-# Static genre map  (TMDB movie genre IDs, as of 2025)
-# Source: https://api.themoviedb.org/3/genre/movie/list
-# ---------------------------------------------------------------------------
-GENRE_MAP: dict[str, int] = {
-    # English
-    "action": 28,
-    "adventure": 12,
-    "animation": 16,
-    "comedy": 35,
-    "crime": 80,
-    "documentary": 99,
-    "drama": 18,
-    "family": 10751,
-    "fantasy": 14,
-    "history": 36,
-    "horror": 27,
-    "music": 10402,
-    "mystery": 9648,
-    "romance": 10749,
-    "science fiction": 878,
-    "sci-fi": 878,
-    "thriller": 53,
-    "tv movie": 10770,
-    "war": 10752,
-    "western": 37,
-    # Spanish aliases
-    "acción": 28,
-    "accion": 28,
-    "aventura": 12,
-    "animación": 16,
-    "animacion": 16,
-    "comedia": 35,
-    "crimen": 80,
-    "documental": 99,
-    "drama": 18,
-    "familia": 10751,
-    "fantasía": 14,
-    "fantasia": 14,
-    "historia": 36,
-    "terror": 27,
-    "música": 10402,
-    "musica": 10402,
-    "misterio": 9648,
-    "romance": 10749,
-    "ciencia ficción": 878,
-    "ciencia ficcion": 878,
-    "bélico": 10752,
-    "belico": 10752,
-    "guerra": 10752,
-    "oeste": 37,
-}
+import httpx
+
+from app.config import settings
+from app.models.movie import Movie
+from app.services.tmdb_constants import COUNTRY_MAP, GENRE_MAP
 
 # Reverse map for display purposes
 _ID_TO_GENRE: dict[int, str] = {v: k for k, v in GENRE_MAP.items() if k != "sci-fi"}
 
 
-@dataclass(slots=True)
-class Movie:
-    """Simple domain object for TMDB movies."""
-
-    id: int
-    title: str
-    overview: str
-    release_date: str
-    vote_average: float
-    genre_ids: list[int]
-
-
-def _headers() -> dict[str, str]:
-    return {
-        "Authorization": f"Bearer {settings.tmdb_api_key}",
-        "accept": "application/json",
-    }
-
-
-def resolve_genre_id(genre_name: str) -> int | None:
+def resolve_genre_id(genre: str) -> int | None:
     """Return the TMDB genre ID for a genre name, or None if unknown."""
-    return GENRE_MAP.get(genre_name.lower().strip())
+    return GENRE_MAP.get(genre.lower().strip())
 
 
-def discover_movies_by_genre(
-    genre_name: str,
-    *,
-    page: int = 1,
-    language: str = "en-US",
-    sort_by: str = "popularity.desc",
-) -> list[Movie]:
-    """
-    Query TMDB /discover/movie filtered by genre.
+class TMDBService:
+    """Persistent TMDB client — one httpx.Client shared across all requests."""
 
-    Returns a list of movie dicts with keys:
-        id, title, overview, release_date, vote_average, genre_ids
-
-    Raises:
-        ValueError  – if the genre name is not recognised.
-        httpx.HTTPStatusError – on non-2xx responses from TMDB.
-    """
-    genre_id = resolve_genre_id(genre_name)
-    if genre_id is None:
-        available = ", ".join(sorted(set(GENRE_MAP.keys())))
-        raise ValueError(
-            f"Unknown genre '{genre_name}'. Available genres: {available}"
+    def __init__(self) -> None:
+        self._client = httpx.Client(
+            base_url=settings.tmdb_base_url,
+            timeout=10.0,
+            headers={
+                "Authorization": f"Bearer {settings.tmdb_api_key}",
+                "accept": "application/json",
+            },
         )
 
-    params: dict[str, Any] = {
-        "with_genres": genre_id,
-        "sort_by": sort_by,
-        "language": language,
-        "page": page,
-    }
+    def close(self) -> None:
+        self._client.close()
 
-    with httpx.Client(base_url=settings.tmdb_base_url, timeout=10.0) as client:
-        response = client.get("/discover/movie", headers=_headers(), params=params)
+    def discover_movies(
+        self,
+        genre: str | None = None,
+        country: str | None = None,
+        page: int = 1,
+        language: str = "en-US",
+        sort_by: str = "popularity.desc",
+    ) -> list[Movie]:
+        """
+        Query TMDB /discover/movie filtered by genre and optionally by country of origin.
+
+        Raises:
+            ValueError  – if the genre or country name is not recognised.
+            httpx.HTTPStatusError – on non-2xx responses from TMDB.
+        """
+        genre_id: int | None = None
+        if genre is not None:
+            genre_id = resolve_genre_id(genre)
+            if genre_id is None:
+                available = ", ".join(sorted(set(GENRE_MAP.keys())))
+                raise ValueError(f"Unknown genre '{genre}'. Available genres: {available}")
+
+        country_code: str | None = None
+        if country is not None:
+            country_code = COUNTRY_MAP.get(country.lower().strip())
+            if country_code is None:
+                available = ", ".join(sorted(set(COUNTRY_MAP.keys())))
+                raise ValueError(f"Unknown country '{country}'. Available countries: {available}")
+
+        params: dict[str, Any] = {
+            "sort_by": sort_by,
+            "language": language,
+            "page": page,
+        }
+        if genre_id is not None:
+            params["with_genres"] = genre_id
+        if country_code is not None:
+            params["watch_region"] = country_code
+
+        response = self._client.get("/discover/movie", params=params)
         response.raise_for_status()
 
-    results: list[dict[str, Any]] = response.json().get("results", [])
-    return [
-        Movie(
-            id=movie["id"],
-            title=movie["title"],
-            overview=movie.get("overview", ""),
-            release_date=movie.get("release_date", ""),
-            vote_average=movie.get("vote_average", 0.0),
-            genre_ids=movie.get("genre_ids", []),
-        )
-        for movie in results
-    ]
+        results: list[dict[str, Any]] = response.json().get("results", [])
+        return [
+            Movie(
+                id=movie["id"],
+                title=movie["title"],
+                overview=movie.get("overview", ""),
+                release_date=movie.get("release_date", ""),
+                vote_average=movie.get("vote_average", 0.0),
+                genre_ids=movie.get("genre_ids", []),
+            )
+            for movie in results
+        ]
+
+
+# Singleton — created once when the module is first imported
+tmdb_service = TMDBService()
+
+
+def get_tmdb_service() -> TMDBService:
+    """FastAPI dependency that returns the shared TMDBService instance."""
+    return tmdb_service

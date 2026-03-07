@@ -1,59 +1,77 @@
 # What to Watch
 
-## Instrucciones para levantar el proyecto
+A personal project to practice agentic architectures and MCP (Model Context Protocol).
 
-Este proyecto incluye un backend desarrollado con FastAPI y un frontend sencillo con Streamlit. A continuación, se detallan los pasos para levantar ambos servicios.
+A web app where users chat with an AI bot that recommends movies based on their tastes and current mood — no more endless scrolling on Netflix.
 
----
+## What It Does
 
-## **Requisitos previos**
+1. The user chats with the bot describing what they feel like watching (e.g. "Something like Interstellar but less dense")
+2. The agent uses an LLM + TMDB to find matching movies in real time
+3. The user gets 3-5 personalized recommendations, each with a brief explanation and a "Watch Now" button
 
-1. **Python 3.9 o superior** instalado.
-2. Crear y activar un entorno virtual:
+## Tech Stack
 
-   - En **PowerShell**:
-     ```powershell
-     python -m venv env_wtw
-     .\env_wtw\Scripts\Activate
-     ```
+- **Frontend:** Streamlit
+- **Backend:** FastAPI
+- **Agent framework:** LangGraph (ReAct loop)
+- **LLM:** OpenAI GPT-4
+- **Movie data:** TMDB API
+- **Observability:** LangSmith
 
-   - En **CMD**:
-     ```cmd
-     python -m venv env_wtw
-     .\env_wtw\Scripts\activate
-     ```
+## Setup
 
-3. Instalar las dependencias del proyecto:
-   ```bash
-   pip install -r requirements.txt
-   ```
+### Prerequisites
 
----
+- Python 3.9+
+- API keys: OpenAI, TMDB, LangSmith
 
-## **Levantar el backend**
+### Install
 
-1. Asegúrate de estar en el directorio raíz del proyecto.
-2. Ejecuta el siguiente comando para iniciar el servidor FastAPI:
-   ```bash
-   uvicorn main:app --reload
-   ```
-3. El backend estará disponible en: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+```bash
+# Create and activate virtual environment
+python -m venv .venv
+.venv\Scripts\activate       # Windows PowerShell
+# source .venv/bin/activate  # macOS/Linux
 
----
+# Install dependencies
+pip install -r requirements.txt
+```
 
-## **Levantar el frontend**
+### Configure
 
-1. En una nueva terminal (con el entorno virtual activado), ejecuta:
-   ```bash
-   streamlit run frontend.py
-   ```
-2. El frontend estará disponible en: [http://localhost:8501](http://localhost:8501)
+Create a `.env` file in the project root:
 
----
+```env
+OPENAI_API_KEY=...
+DEFAULT_MODEL=gpt-4o
+TMDB_API_KEY=...
+TMDB_BASE_URL=https://api.themoviedb.org/3
+LANGSMITH_TRACING=true
+LANGSMITH_ENDPOINT=https://api.smith.langchain.com
+LANGSMITH_API_KEY=...
+LANGSMITH_PROJECT=what-to-watch
+```
 
-## **Notas adicionales**
+### Run
 
-- Asegúrate de que el backend esté corriendo antes de iniciar el frontend.
-- Si necesitas detener el backend o el frontend, usa `Ctrl + C` en la terminal correspondiente.
+```bash
+# Terminal 1 — Backend
+uvicorn main:app --reload
 
-¡Listo! Ahora puedes interactuar con el sistema para obtener recomendaciones de películas.
+# Terminal 2 — Frontend
+streamlit run frontend.py
+```
+
+- Frontend: http://localhost:8501
+- API: http://127.0.0.1:8000
+- API docs: http://127.0.0.1:8000/docs
+
+## Roadmap
+
+- **v1 (current):** Streamlit + FastAPI + LangGraph agent + TMDB
+- **v2:** NoSQL user profiles, FAISS vector DB for semantic search, MCP integration, conversation memory
+
+## Contributing / Agent Context
+
+See [CLAUDE.md](CLAUDE.md) for detailed instructions on project structure, conventions, and architecture — useful both for human contributors and AI coding agents.

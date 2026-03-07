@@ -1,0 +1,15 @@
+type: function
+function:
+  name: search_movies_with_filters
+  description: >
+    Busca en TMDB películas populares de un género dado.
+    Úsala siempre que el usuario pida una recomendación por género.
+    El género debe estar en inglés (e.g. 'horror', 'comedy', 'thriller', 'action').
+  parameters:
+    type: object
+    properties:
+      genre:
+        type: string
+        description: El género de película en inglés
+    required:
+      - genre

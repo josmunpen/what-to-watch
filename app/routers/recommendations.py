@@ -1,25 +1,13 @@
-from fastapi import APIRouter
-from pydantic import BaseModel
-from langchain_core.messages import HumanMessage
-from app.services.llm_service import graph
+from fastapi import APIRouter, Depends
+
+from app.schemas.chat import ChatRequest, ChatResponse
+from app.services.llm_service import LLMService, get_llm_service
 
 router = APIRouter()
 
 
-class ChatRequest(BaseModel):
-    message: str
-
-
-class ChatResponse(BaseModel):
-    response: str
-
-
 @router.post("/chat", response_model=ChatResponse)
-def chat(request: ChatRequest):
-    # Invocamos el grafo con el mensaje del usuario como estado inicial.
-    # LangGraph ejecuta el nodo "chatbot" y devuelve el estado final.
-    result = graph.invoke({"messages": [HumanMessage(content=request.message)]})
-
-    # El último mensaje en el estado es la respuesta del LLM
-    response_text = result["messages"][-1].content
+def chat(request: ChatRequest, llm: LLMService = Depends(get_llm_service)):
+    history = [msg.model_dump() for msg in request.history]
+    response_text = llm.run_agent(request.message, history=history)
     return ChatResponse(response=response_text)

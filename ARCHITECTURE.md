@@ -1,19 +1,30 @@
-## Stack
-Frontend: Streamlit
-Backend: FastAPI
-DB: NoSQL (v2)
-Vector DB: FAISS (v2)
-LLM: OpenAI GPT-4
+# Architecture
 
-## Versiones
+See [PROJECT.md](PROJECT.md) for product vision and requirements.
 
-### v1
-- **Frontend:** Streamlit para capturar las preferencias del usuario.
-- **Backend:** FastAPI para manejar las solicitudes.
-- **Llamadas a APIs externas:** Para obtener información necesaria sobre películas.
-- **LLM:** Uso de OpenAI GPT-4 para procesar las preferencias del usuario y generar recomendaciones.
+## Tech Stack
 
-### v2
-- **Base de datos NoSQL:** Para almacenar información de usuarios y preferencias.
-- **Base de datos vectorial:** FAISS para realizar búsquedas rápidas y eficientes de películas basadas en similitudes.
-- **Integración completa:** Conversaciones con la base de datos y vector DB para enriquecer las recomendaciones.
+| Layer | Technology |
+|---|---|
+| Frontend | Streamlit (`frontend.py`) |
+| Backend | FastAPI (`main.py`) |
+| Agent framework | LangGraph via `create_agent` (ReAct loop) |
+| LLM | OpenAI GPT-4 (configured via `settings.default_model`) |
+| External API | TMDB (The Movie Database) |
+| Observability | LangSmith tracing |
+| Config | `pydantic-settings` with `.env` file |
+
+## Agent Architecture (v1)
+
+ReAct loop via LangGraph's `create_agent`:
+1. User sends a message via Streamlit → POST `/chat`
+2. The LangGraph agent receives the message
+3. The LLM decides whether to call the `search_movies_by_genre` tool (TMDB API)
+4. The LLM generates a final recommendation response
+
+## Roadmap (v2)
+
+- NoSQL database for user profiles and preferences
+- FAISS vector database for semantic movie similarity search
+- MCP (Model Context Protocol) integration
+- Full conversation memory
