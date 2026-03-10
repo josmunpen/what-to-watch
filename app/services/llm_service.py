@@ -7,7 +7,7 @@ from openai import OpenAI
 
 from app.config import settings
 from app.models.movie import Movie
-from app.services.tmdb_service import TMDBService, tmdb_service
+from app.services.tmdb_service import TMDBService, resolve_provider_id, tmdb_service
 
 _PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
 _TOOLS_DIR = Path(__file__).parent.parent / "tools"
@@ -36,14 +36,60 @@ class LLMService:
         self._tmdb = tmdb
         self._available_tools = {
             "search_movies_with_filters": self._search_movies_with_filters,
+            "search_movie_by_title": self._search_movie_by_title,
         }
 
-    def _search_movies_with_filters(self, genre: str) -> str:
-        logger.debug(f"Tool called: search_movies_with_filters(genre={genre})")
+    def _search_movies_with_filters(
+        self,
+        genre: str | None = None,
+        watch_region: str = "ES",
+        with_watch_providers: str | None = None,
+        primary_release_year: int | None = None,
+        release_date_gte: str | None = None,
+        release_date_lte: str | None = None,
+        vote_average_gte: float | None = None,
+        vote_count_gte: int | None = None,
+        with_original_language: str | None = None,
+        runtime_gte: int | None = None,
+        runtime_lte: int | None = None,
+        with_watch_monetization_types: str | None = None,
+        without_genres: str | None = None,
+    ) -> str:
+        logger.debug(f"Tool called: search_movies_with_filters(genre={genre}, ...)")
+        provider_id: int | None = None
+        if with_watch_providers is not None:
+            provider_id = resolve_provider_id(with_watch_providers)
+            if provider_id is None:
+                return (
+                    f"Plataforma '{with_watch_providers}' no reconocida. "
+                    "Busca sin filtro de plataforma."
+                )
         try:
-            movies = self._tmdb.discover_movies(genre_name=genre, page=1)
+            movies = self._tmdb.discover_movies(
+                genre=genre,
+                watch_region=watch_region,
+                with_watch_providers=provider_id,
+                primary_release_year=primary_release_year,
+                release_date_gte=release_date_gte,
+                release_date_lte=release_date_lte,
+                vote_average_gte=vote_average_gte,
+                vote_count_gte=vote_count_gte,
+                with_original_language=with_original_language,
+                runtime_gte=runtime_gte,
+                runtime_lte=runtime_lte,
+                with_watch_monetization_types=with_watch_monetization_types,
+                without_genres=without_genres,
+                page=1,
+            )
         except ValueError as e:
             return str(e)
+        return _format_movies(movies)
+
+    def _search_movie_by_title(self, query: str) -> str:
+        logger.debug(f"Tool called: search_movie_by_title(query={query})")
+        movies = self._tmdb.search_movies(query)
+        if not movies:
+            return f"No se encontraron películas para la búsqueda: '{query}'."
         return _format_movies(movies)
 
     def run_agent(self, user_message: str, history: list[dict] | None = None) -> str:

@@ -2,14 +2,73 @@ type: function
 function:
   name: search_movies_with_filters
   description: >
-    Busca en TMDB películas populares de un género dado.
-    Úsala siempre que el usuario pida una recomendación por género.
-    El género debe estar en inglés (e.g. 'horror', 'comedy', 'thriller', 'action').
+    Busca en TMDB películas usando filtros combinados: género, año, idioma, valoración,
+    duración, plataforma, etc. Úsala cuando el usuario pida recomendaciones con cualquier
+    criterio de este tipo. Todos los parámetros son opcionales y combinables.
   parameters:
     type: object
     properties:
       genre:
         type: string
-        description: El género de película en inglés
-    required:
-      - genre
+        description: >
+          Género en inglés (e.g. 'horror', 'comedy', 'thriller', 'action', 'drama').
+          Omitir si el usuario no especifica género.
+      watch_region:
+        type: string
+        description: >
+          Código ISO 3166-1 del país para filtrar disponibilidad en plataformas
+          (e.g. 'ES' para España, 'US' para Estados Unidos). Por defecto 'ES'.
+      with_watch_providers:
+        type: string
+        description: >
+          Nombre de la plataforma de streaming (e.g. 'Netflix', 'Disney Plus',
+          'HBO Max', 'Amazon Prime Video', 'Filmin').
+          Solo incluir si el usuario lo menciona explícitamente.
+      primary_release_year:
+        type: integer
+        description: >
+          Año exacto de estreno. Usar cuando el usuario pida películas de un año concreto
+          (e.g. 2010). No combinar con release_date_gte/lte.
+      release_date_gte:
+        type: string
+        description: >
+          Fecha mínima de estreno en formato YYYY-MM-DD. Usar para rangos como
+          "posteriores a 2000" → '2000-01-01'.
+      release_date_lte:
+        type: string
+        description: >
+          Fecha máxima de estreno en formato YYYY-MM-DD. Usar para rangos como
+          "anteriores a 1990" → '1990-12-31'.
+      vote_average_gte:
+        type: number
+        description: >
+          Puntuación mínima (0-10). Usar cuando el usuario pida algo "bien valorado"
+          o "de calidad". Valor recomendado: 7.0. Combinar con vote_count_gte.
+      vote_count_gte:
+        type: integer
+        description: >
+          Número mínimo de votos para que la puntuación sea fiable. Valor recomendado
+          cuando se use vote_average_gte: 200.
+      with_original_language:
+        type: string
+        description: >
+          Código ISO 639-1 del idioma original (e.g. 'ko' para coreano, 'fr' para
+          francés, 'ja' para japonés, 'es' para español).
+      runtime_gte:
+        type: integer
+        description: Duración mínima en minutos (e.g. 120 para películas largas).
+      runtime_lte:
+        type: integer
+        description: Duración máxima en minutos (e.g. 90 para películas cortas).
+      with_watch_monetization_types:
+        type: string
+        description: >
+          Tipo de monetización: 'flatrate' (suscripción), 'free', 'ads', 'rent', 'buy'.
+          Usar 'flatrate' si el usuario quiere algo incluido en su suscripción.
+          Requiere watch_region.
+      without_genres:
+        type: string
+        description: >
+          Géneros a excluir en inglés, separados por coma (e.g. 'comedy,horror').
+          Usar cuando el usuario descarte géneros explícitamente.
+    required: []

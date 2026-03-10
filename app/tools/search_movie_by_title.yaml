@@ -1,0 +1,17 @@
+type: function
+function:
+  name: search_movie_by_title
+  description: >
+    Busca películas en TMDB por título exacto o parcial. Úsala cuando el usuario
+    mencione el nombre de una película específica o un fragmento del título que
+    quiera encontrar.
+  parameters:
+    type: object
+    properties:
+      query:
+        type: string
+        description: >
+          Título o fragmento de título de la película a buscar
+          (e.g. 'Inception', 'El padrino', 'Star Wars').
+    required:
+      - query

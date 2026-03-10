@@ -32,3 +32,9 @@ what-to-watch/
 - Keep LLM calls minimal to optimize costs — prefer caching and tool reuse
 - The agent should recommend 3-5 movies with a brief explanation and a "Watch Now" link
 - TMDB is the primary data source for movie metadata
+
+## Git Workflow
+
+- After completing each task, always create a git commit automatically without waiting to be asked
+- Commit message format: `feat: <task subject in lowercase English>`
+- Stage only the files modified by that task (never `git add -A`)
