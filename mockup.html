@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What to Watch — Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-dark: #1A1614;
+    --bg-card: #241F1C;
+    --bg-input: #2E2724;
+    --accent: #E09145;
+    --accent-hover: #C97D35;
+    --text-primary: #F5E6D3;
+    --text-secondary: #A89585;
+    --brown-mid: #8B6914;
+    --user-bubble: #2E2724;
+    --assistant-bubble: #302520;
+    --border: #3A3230;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    line-height: 1.6;
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 4rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .logo span { color: var(--text-primary); }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text-primary); }
+
+  /* BUTTONS */
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg-dark);
+    border: none;
+    padding: 0.65rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-family: inherit;
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    padding: 0.65rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .btn-secondary:hover { border-color: var(--text-secondary); }
+
+  /* HERO */
+  .hero {
+    text-align: center;
+    padding: 6rem 2rem 4rem;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .hero h1 {
+    font-size: 3.2rem;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 1.2rem;
+  }
+  .hero h1 .highlight { color: var(--accent); }
+  .hero p {
+    font-size: 1.15rem;
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hero-buttons { display: flex; gap: 1rem; justify-content: center; }
+
+  /* FEATURES */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    max-width: 900px;
+    margin: 2rem auto 6rem;
+    padding: 0 2rem;
+  }
+  .feature-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 1.5rem;
+  }
+  .feature-icon {
+    font-size: 1.8rem;
+    margin-bottom: 0.8rem;
+  }
+  .feature-card h3 {
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+  }
+  .feature-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  /* CTA */
+  .cta {
+    text-align: center;
+    padding: 4rem 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .cta h2 {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+  }
+  .cta p {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+  }
+
+  /* DIVIDER */
+  .section-divider {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 4rem 2rem 2rem;
+    text-align: center;
+  }
+  .section-divider h2 {
+    font-size: 1.4rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  .section-divider h2 span { color: var(--accent); }
+
+  /* CHAT MOCKUP */
+  .chat-container {
+    max-width: 700px;
+    margin: 1rem auto 4rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .chat-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .chat-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+  }
+  .chat-header-info h4 { font-size: 0.95rem; }
+  .chat-header-info p { font-size: 0.8rem; color: var(--text-secondary); }
+  .chat-messages {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-height: 350px;
+  }
+  .message {
+    max-width: 80%;
+    padding: 0.85rem 1.1rem;
+    border-radius: 12px;
+    font-size: 0.93rem;
+    line-height: 1.5;
+  }
+  .message-user {
+    align-self: flex-end;
+    background: var(--user-bubble);
+    border: 1px solid var(--border);
+  }
+  .message-assistant {
+    align-self: flex-start;
+    background: var(--assistant-bubble);
+    border: 1px solid var(--border);
+  }
+  .message-assistant .movie-card {
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    margin-top: 0.6rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .movie-card .movie-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .movie-card .movie-year {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+  }
+  .movie-card .watch-btn {
+    background: var(--accent);
+    color: var(--bg-dark);
+    border: none;
+    padding: 0.35rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .chat-input-area {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 0.8rem;
+  }
+  .chat-input-area input {
+    flex: 1;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    color: var(--text-primary);
+    font-size: 0.93rem;
+    outline: none;
+    font-family: inherit;
+  }
+  .chat-input-area input::placeholder { color: var(--text-secondary); }
+  .chat-input-area input:focus { border-color: var(--accent); }
+  .send-btn {
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    width: 42px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: background 0.2s;
+  }
+  .send-btn:hover { background: var(--accent-hover); }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">what-to-<span>watch</span></div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#pricing">Precios</a>
+    <button class="btn-primary">Empezar gratis</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <h1>Deja de hacer scroll.<br><span class="highlight">Encuentra tu peli.</span></h1>
+  <p>Chatea con un asistente que entiende lo que te apetece ver esta noche. Sin algoritmos opacos, sin perder media hora eligiendo.</p>
+  <div class="hero-buttons">
+    <button class="btn-primary">Pruébalo gratis</button>
+    <button class="btn-secondary">Ver cómo funciona</button>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="feature-card">
+    <div class="feature-icon">💬</div>
+    <h3>Conversación natural</h3>
+    <p>Dile lo que te apetece como se lo dirías a un amigo. "Algo ligero para ver en pareja" funciona perfectamente.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🎯</div>
+    <h3>Recomendaciones precisas</h3>
+    <p>Nada de listas genéricas. Cada sugerencia está pensada para lo que tú buscas en ese momento.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🍿</div>
+    <h3>De la charla al sofá</h3>
+    <p>Cada recomendación incluye dónde verla. Un click y estás viendo la peli.</p>
+  </div>
+</section>
+
+<!-- CHAT DEMO -->
+<div class="section-divider">
+  <h2>Así se siente usar <span>what-to-watch</span></h2>
+</div>
+
+<div class="chat-container">
+  <div class="chat-header">
+    <div class="chat-avatar">🎬</div>
+    <div class="chat-header-info">
+      <h4>What to Watch</h4>
+      <p>Tu asistente de pelis</p>
+    </div>
+  </div>
+  <div class="chat-messages">
+    <div class="message message-user">
+      Quiero ver algo de ciencia ficción pero que no sea muy larga, estoy cansado
+    </div>
+    <div class="message message-assistant">
+      Entiendo, algo de sci-fi cortito y que no requiera mucho esfuerzo mental. Te propongo estas:
+
+      <div class="movie-card">
+        <div>
+          <div class="movie-title">Arrival</div>
+          <div class="movie-year">2016 · 1h 56min — Sci-fi intimista, más emocional que explosiva</div>
+        </div>
+        <button class="watch-btn">Ver ahora</button>
+      </div>
+
+      <div class="movie-card">
+        <div>
+          <div class="movie-title">Ex Machina</div>
+          <div class="movie-year">2014 · 1h 48min — Tensa, elegante, solo 3 personajes</div>
+        </div>
+        <button class="watch-btn">Ver ahora</button>
+      </div>
+
+      <div class="movie-card">
+        <div>
+          <div class="movie-title">Moon</div>
+          <div class="movie-year">2009 · 1h 37min — Minimalista y envolvente, perfecta para ver cansado</div>
+        </div>
+        <button class="watch-btn">Ver ahora</button>
+      </div>
+    </div>
+    <div class="message message-user">
+      Moon no la he visto, tiene buena pinta 👀
+    </div>
+    <div class="message message-assistant">
+      Gran elección. Sam Rockwell hace un trabajo increíble prácticamente solo. Es de esas pelis que te quedas pensando después. ¡Disfrútala! 🍿
+    </div>
+  </div>
+  <div class="chat-input-area">
+    <input type="text" placeholder="Cuéntame qué te apetece ver..." />
+    <button class="send-btn">➤</button>
+  </div>
+</div>
+
+<!-- CTA -->
+<section class="cta">
+  <h2>¿Listo para dejar de hacer scroll?</h2>
+  <p>Empieza gratis. Sin tarjeta. Sin compromiso.</p>
+  <button class="btn-primary">Empieza ahora</button>
+</section>
+
+<footer>
+  what-to-watch © 2026 — Hecho con 🍿 y buen gusto
+</footer>
+
+</body>
+</html>
