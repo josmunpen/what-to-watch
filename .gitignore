@@ -2,3 +2,6 @@
 __pycache__/
 env_wtw/
 *.pyc
+.venv/
+node_modules/
+.next/
