@@ -44,6 +44,7 @@ class LLMService:
         self._available_tools = {
             "search_movies_with_filters": self._search_movies_with_filters,
             "search_movie_by_title": self._search_movie_by_title,
+            "get_movie_recommendations": self._get_movie_recommendations,
         }
 
     def _resolve_providers(self, names: list[str]) -> str | None:
@@ -139,6 +140,13 @@ class LLMService:
         movies = self._tmdb.search_movies(query)
         if not movies:
             return f"No se encontraron películas para la búsqueda: '{query}'."
+        return _format_movies(movies)
+
+    def _get_movie_recommendations(self, movie_id: int) -> str:
+        logger.debug(f"Tool called: get_movie_recommendations(movie_id={movie_id})")
+        movies = self._tmdb.get_movie_recommendations(movie_id)
+        if not movies:
+            return f"No se encontraron recomendaciones para la película con ID {movie_id}."
         return _format_movies(movies)
 
     def run_agent(self, user_message: str, history: list[dict] | None = None) -> str:

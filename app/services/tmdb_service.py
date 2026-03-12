@@ -47,7 +47,7 @@ class TMDBService:
         self,
         genre: str | None = None,
         watch_region: str | None = None,
-        with_watch_providers: int | None = None,
+        with_watch_providers: str | None = None,
         primary_release_year: int | None = None,
         release_date_gte: str | None = None,
         release_date_lte: str | None = None,
@@ -142,6 +142,35 @@ class TMDBService:
         }
 
         response = self._client.get("/search/movie", params=params)
+        response.raise_for_status()
+
+        results: list[dict[str, Any]] = response.json().get("results", [])
+        return [
+            Movie(
+                id=movie["id"],
+                title=movie["title"],
+                overview=movie.get("overview", ""),
+                release_date=movie.get("release_date", ""),
+                vote_average=movie.get("vote_average", 0.0),
+                genre_ids=movie.get("genre_ids", []),
+            )
+            for movie in results
+        ]
+
+
+    def get_movie_recommendations(
+        self,
+        movie_id: int,
+        page: int = 1,
+        language: str = "en-US",
+    ) -> list[Movie]:
+        """Get curated recommendations for a movie using TMDB /movie/{id}/recommendations.
+
+        Raises:
+            httpx.HTTPStatusError – on non-2xx responses from TMDB.
+        """
+        params: dict[str, Any] = {"page": page, "language": language}
+        response = self._client.get(f"/movie/{movie_id}/recommendations", params=params)
         response.raise_for_status()
 
         results: list[dict[str, Any]] = response.json().get("results", [])

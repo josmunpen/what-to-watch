@@ -1,0 +1,17 @@
+type: function
+function:
+  name: get_movie_recommendations
+  description: >
+    Obtiene recomendaciones de películas similares usando el algoritmo curado de TMDB.
+    Úsala cuando el usuario quiera algo "parecido a X" o "como X".
+    Primero usa search_movie_by_title para obtener el movie_id, luego llama a esta tool.
+  parameters:
+    type: object
+    properties:
+      movie_id:
+        type: integer
+        description: >
+          ID numérico de la película de referencia en TMDB.
+          Obtenible con search_movie_by_title.
+    required:
+      - movie_id
