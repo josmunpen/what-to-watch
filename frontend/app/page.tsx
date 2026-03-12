@@ -1,7 +1,13 @@
+import { Hero } from "@/components/landing/hero";
+import { Features } from "@/components/landing/features";
+import { CTA } from "@/components/landing/cta";
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen items-center justify-center">
-      <h1 className="text-4xl font-bold text-accent">what-to-watch</h1>
-    </main>
+    <>
+      <Hero />
+      <Features />
+      <CTA />
+    </>
   );
 }
