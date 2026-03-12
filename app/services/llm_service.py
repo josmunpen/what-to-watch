@@ -7,7 +7,14 @@ from openai import OpenAI
 
 from app.config import settings
 from app.models.movie import Movie
-from app.services.tmdb_service import TMDBService, resolve_provider_id, tmdb_service
+from app.services.tmdb_service import (
+    TMDBService,
+    resolve_genre_id,
+    resolve_provider_id,
+    tmdb_service,
+)
+
+VALID_MONETIZATION_TYPES = {"flatrate", "free", "ads", "rent", "buy"}
 
 _PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
 _TOOLS_DIR = Path(__file__).parent.parent / "tools"
@@ -39,11 +46,41 @@ class LLMService:
             "search_movie_by_title": self._search_movie_by_title,
         }
 
+    def _resolve_providers(self, names: list[str]) -> str | None:
+        """Resolve a list of provider names to a pipe-separated string of IDs."""
+        ids = []
+        unknown = []
+        for name in names:
+            pid = resolve_provider_id(name)
+            if pid is None:
+                unknown.append(name)
+            else:
+                ids.append(str(pid))
+        if unknown:
+            unknown_str = ", ".join(unknown)
+            msg = f"Plataforma(s) no reconocida(s): {unknown_str}. Busca sin filtro de plataforma."
+            return None, msg
+        return "|".join(ids), None
+
+    def _resolve_genres(self, names: list[str]) -> tuple[str | None, str | None]:
+        """Resolve a list of genre names to a pipe-separated string of IDs."""
+        ids = []
+        unknown = []
+        for name in names:
+            gid = resolve_genre_id(name)
+            if gid is None:
+                unknown.append(name)
+            else:
+                ids.append(str(gid))
+        if unknown:
+            return None, f"Género(s) no reconocido(s): {', '.join(unknown)}."
+        return "|".join(ids), None
+
     def _search_movies_with_filters(
         self,
         genre: str | None = None,
         watch_region: str = "ES",
-        with_watch_providers: str | None = None,
+        with_watch_providers: list[str] | None = None,
         primary_release_year: int | None = None,
         release_date_gte: str | None = None,
         release_date_lte: str | None = None,
@@ -53,22 +90,34 @@ class LLMService:
         runtime_gte: int | None = None,
         runtime_lte: int | None = None,
         with_watch_monetization_types: str | None = None,
-        without_genres: str | None = None,
+        without_genres: list[str] | None = None,
     ) -> str:
         logger.debug(f"Tool called: search_movies_with_filters(genre={genre}, ...)")
-        provider_id: int | None = None
-        if with_watch_providers is not None:
-            provider_id = resolve_provider_id(with_watch_providers)
-            if provider_id is None:
-                return (
-                    f"Plataforma '{with_watch_providers}' no reconocida. "
-                    "Busca sin filtro de plataforma."
-                )
+
+        providers_str: str | None = None
+        if with_watch_providers:
+            providers_str, err = self._resolve_providers(with_watch_providers)
+            if err:
+                return err
+
+        without_genres_str: str | None = None
+        if without_genres:
+            without_genres_str, err = self._resolve_genres(without_genres)
+            if err:
+                return err
+
+        if with_watch_monetization_types and with_watch_monetization_types not in VALID_MONETIZATION_TYPES:
+            valid = ", ".join(sorted(VALID_MONETIZATION_TYPES))
+            return (
+                f"Tipo de monetización no válido: '{with_watch_monetization_types}'."
+                f" Valores válidos: {valid}."
+            )
+
         try:
             movies = self._tmdb.discover_movies(
                 genre=genre,
                 watch_region=watch_region,
-                with_watch_providers=provider_id,
+                with_watch_providers=providers_str,
                 primary_release_year=primary_release_year,
                 release_date_gte=release_date_gte,
                 release_date_lte=release_date_lte,
@@ -78,7 +127,7 @@ class LLMService:
                 runtime_gte=runtime_gte,
                 runtime_lte=runtime_lte,
                 with_watch_monetization_types=with_watch_monetization_types,
-                without_genres=without_genres,
+                without_genres=without_genres_str,
                 page=1,
             )
         except ValueError as e:

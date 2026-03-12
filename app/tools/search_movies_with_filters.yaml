@@ -19,7 +19,9 @@ function:
           Código ISO 3166-1 del país para filtrar disponibilidad en plataformas
           (e.g. 'ES' para España, 'US' para Estados Unidos). Por defecto 'ES'.
       with_watch_providers:
-        type: string
+        type: array
+        items:
+          type: string
         description: >
           Nombre de la plataforma de streaming (e.g. 'Netflix', 'Disney Plus',
           'HBO Max', 'Amazon Prime Video', 'Filmin').
@@ -62,13 +64,16 @@ function:
         description: Duración máxima en minutos (e.g. 90 para películas cortas).
       with_watch_monetization_types:
         type: string
+        enum: [flatrate, free, ads, rent, buy]
         description: >
           Tipo de monetización: 'flatrate' (suscripción), 'free', 'ads', 'rent', 'buy'.
           Usar 'flatrate' si el usuario quiere algo incluido en su suscripción.
           Requiere watch_region.
       without_genres:
-        type: string
+        type: array
+        items:
+          type: string
         description: >
-          Géneros a excluir en inglés, separados por coma (e.g. 'comedy,horror').
+          Géneros a excluir en inglés (e.g. ['comedy', 'horror']).
           Usar cuando el usuario descarte géneros explícitamente.
     required: []
