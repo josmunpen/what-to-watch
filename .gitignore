@@ -3,5 +3,3 @@ __pycache__/
 env_wtw/
 *.pyc
 .venv/
-frontend/node_modules/
-frontend/.next/

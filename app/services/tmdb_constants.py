@@ -3,8 +3,9 @@ Static lookup tables for TMDB API values.
 
 These lists are stable and cached here to avoid unnecessary API calls.
 Sources:
-  - Genres:   https://api.themoviedb.org/3/genre/movie/list
-  - Countries: https://api.themoviedb.org/3/configuration/countries
+  - Genres:     https://api.themoviedb.org/3/genre/movie/list
+  - Countries:  https://api.themoviedb.org/3/configuration/countries
+  - Providers:  https://api.themoviedb.org/3/watch/providers/movie
 """
 
 # ---------------------------------------------------------------------------
@@ -84,4 +85,62 @@ COUNTRY_MAP: dict[str, str] = {
     "denmark": "DK",
     "argentina": "AR",
     "iran": "IR",
+}
+
+# ---------------------------------------------------------------------------
+# Streaming providers — name (EN/ES) → TMDB provider ID
+# ---------------------------------------------------------------------------
+PROVIDER_MAP: dict[str, int] = {
+    # Major global platforms
+    "netflix": 8,
+    "disney plus": 337,
+    "disney+": 337,
+    "apple tv": 350,
+    "apple tv+": 350,
+    "amazon prime video": 119,
+    "prime video": 119,
+    "amazon prime": 119,
+    "apple tv store": 2,
+    "hbo max": 1899,
+    "max": 1899,
+    "mubi": 11,
+    "amazon video": 10,
+    "google play movies": 3,
+    "youtube premium": 188,
+    "rakuten tv": 35,
+    "pluto tv": 300,
+    "plex": 538,
+    "curiosity stream": 190,
+    "docsville": 475,
+    "guidedoc": 100,
+    "wow presents plus": 546,
+    "magellan tv": 551,
+    "broadwayhd": 554,
+    "filmzie": 559,
+    "dekkoo": 444,
+    "true story": 567,
+    "docalliance films": 569,
+    "hoichoi": 315,
+    "eventive": 677,
+    "cultpix": 692,
+    "mubi amazon channel": 201,
+    "outtv amazon channel": 607,
+    "flixolé amazon channel": 684,
+    "flixole amazon channel": 684,
+    "tvcortos amazon channel": 689,
+    # Spanish-specific
+    "movistar plus+": 2241,
+    "movistar plus": 2241,
+    "movistar plus+ ficción total": 149,
+    "movistar plus ficcion total": 149,
+    "filmin": 63,
+    "filmin plus": 64,
+    "atres player": 62,
+    "flixolé": 393,
+    "flixole": 393,
+    "rtve": 541,
+    "skyshowtime": 1773,
+    "fubotv": 257,
+    # Spanish aliases
+    "prime": 119,
 }
