@@ -42,6 +42,12 @@
 - [ ] **Discutir el enfoque de function calling actual** — Revisar si el esquema actual (YAMLs con OpenAI Function Calling vía SDK) es el más adecuado: estructura de los schemas, cómo se pasan al LLM, si conviene migrar a otro formato o añadir validación de outputs con Pydantic, etc.
 - [ ] **Evaluar PydanticAI** — Discutir para qué sirve PydanticAI y si tiene sentido adoptarlo en este proyecto: qué aporta frente al enfoque actual (OpenAI SDK + YAMLs), cuándo es útil, y si encaja con la arquitectura ReAct que estamos usando.
 
+### UX / Registro de usuario
+
+**Baja prioridad**
+
+- [ ] **Selector de región en registro** — Permitir al usuario seleccionar su país/región en el formulario de registro. Actualmente `watch_region` está hardcodeado a `'ES'` como default. Cuando exista perfil de usuario, usar su región configurada en lugar del default.
+
 ## En progreso
 
 ## Completado
