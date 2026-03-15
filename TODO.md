@@ -42,6 +42,10 @@
 - [ ] **Discutir el enfoque de function calling actual** — Revisar si el esquema actual (YAMLs con OpenAI Function Calling vía SDK) es el más adecuado: estructura de los schemas, cómo se pasan al LLM, si conviene migrar a otro formato o añadir validación de outputs con Pydantic, etc.
 - [ ] **Evaluar PydanticAI** — Discutir para qué sirve PydanticAI y si tiene sentido adoptarlo en este proyecto: qué aporta frente al enfoque actual (OpenAI SDK + YAMLs), cuándo es útil, y si encaja con la arquitectura ReAct que estamos usando.
 
+### Testing
+
+- [ ] **Tests unitarios para function calls** — Testear los resolvers de `tmdb_constants.py` (`resolve_genres`, `resolve_providers`, `resolve_language_code`, `resolve_country_code`) y la validación de parámetros en `llm_service._search_movies_with_filters` (sort_by inválido, idioma no reconocido, región inválida, género desconocido, monetización inválida). Mockear `TMDBService` para aislar la lógica de validación.
+
 ### UX / Registro de usuario
 
 **Baja prioridad**
