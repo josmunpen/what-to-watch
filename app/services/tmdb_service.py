@@ -139,6 +139,33 @@ class TMDBService:
         ]
 
 
+    def get_movie_watch_providers(
+        self,
+        movie_id: int,
+        watch_region: str = "ES",
+    ) -> dict[str, list[str]]:
+        """Get watch providers for a movie in a specific region.
+
+        Returns a dict with keys 'flatrate', 'rent', 'buy' (if available),
+        each containing a list of provider names.
+
+        Raises:
+            httpx.HTTPStatusError – on non-2xx responses from TMDB.
+        """
+        response = self._client.get(f"/movie/{movie_id}/watch/providers")
+        response.raise_for_status()
+
+        all_results: dict[str, Any] = response.json().get("results", {})
+        region_data = all_results.get(watch_region, {})
+
+        providers: dict[str, list[str]] = {}
+        for category in ("flatrate", "rent", "buy", "free", "ads"):
+            if category in region_data:
+                providers[category] = [
+                    p["provider_name"] for p in region_data[category]
+                ]
+        return providers
+
     def get_movie_recommendations(
         self,
         movie_id: int,

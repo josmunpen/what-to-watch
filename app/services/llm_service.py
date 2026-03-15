@@ -46,6 +46,7 @@ class LLMService:
             "search_movies_with_filters": self._search_movies_with_filters,
             "search_movie_by_title": self._search_movie_by_title,
             "get_movie_recommendations": self._get_movie_recommendations,
+            "get_movie_watch_providers": self._get_movie_watch_providers,
         }
 
     def _search_movies_with_filters(
@@ -148,6 +149,30 @@ class LLMService:
         if not movies:
             return f"No se encontraron recomendaciones para la película con ID {movie_id}."
         return _format_movies(movies)
+
+    def _get_movie_watch_providers(self, movie_id: int, watch_region: str = "ES") -> str:
+        logger.debug(f"Tool called: get_movie_watch_providers(movie_id={movie_id})")
+
+        resolved_region = resolve_country_code(watch_region)
+        if resolved_region is None:
+            return f"Región no reconocida: '{watch_region}'. Usa un código ISO 3166-1 (e.g. 'ES', 'US') o nombre de país en inglés."
+
+        providers = self._tmdb.get_movie_watch_providers(movie_id, watch_region=resolved_region)
+        if not providers:
+            return f"No se encontraron plataformas disponibles para la película con ID {movie_id} en la región {resolved_region}."
+
+        labels = {
+            "flatrate": "Suscripción",
+            "rent": "Alquiler",
+            "buy": "Compra",
+            "free": "Gratis",
+            "ads": "Con anuncios",
+        }
+        lines = []
+        for category, names in providers.items():
+            label = labels.get(category, category)
+            lines.append(f"- {label}: {', '.join(names)}")
+        return "\n".join(lines)
 
     def run_agent(self, user_message: str, history: list[dict] | None = None) -> str:
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]

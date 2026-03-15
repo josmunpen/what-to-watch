@@ -1,0 +1,21 @@
+type: function
+function:
+  name: get_movie_watch_providers
+  description: >
+    Obtiene las plataformas de streaming donde está disponible una película en una región
+    concreta. Úsala cuando el usuario pregunte "¿dónde puedo ver X?" o "¿en qué plataforma
+    está X?". Requiere el movie_id (obtenible con search_movie_by_title).
+  parameters:
+    type: object
+    properties:
+      movie_id:
+        type: integer
+        description: >
+          ID de la película en TMDB. Obtenerlo previamente con search_movie_by_title.
+      watch_region:
+        type: string
+        description: >
+          Código ISO 3166-1 del país o nombre del país en inglés
+          (e.g. 'ES', 'US', 'spain'). Por defecto 'ES'.
+    required:
+      - movie_id
