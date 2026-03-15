@@ -1,5 +1,5 @@
 """
-Static lookup tables for TMDB API values.
+Static lookup tables and resolvers for TMDB API values.
 
 These lists are stable and cached here to avoid unnecessary API calls.
 Sources:
@@ -7,6 +7,8 @@ Sources:
   - Countries:  https://api.themoviedb.org/3/configuration/countries
   - Providers:  https://api.themoviedb.org/3/watch/providers/movie
 """
+
+from __future__ import annotations
 
 # ---------------------------------------------------------------------------
 # Genres — name (EN/ES) → TMDB genre ID
@@ -246,3 +248,78 @@ PROVIDER_MAP: dict[str, int] = {
     # Spanish aliases
     "prime": 119,
 }
+
+VALID_MONETIZATION_TYPES: set[str] = {"flatrate", "free", "ads", "rent", "buy"}
+
+
+# ---------------------------------------------------------------------------
+# Resolvers — convert human-readable names to TMDB IDs/codes
+# ---------------------------------------------------------------------------
+
+
+def resolve_genre_id(genre: str) -> int | None:
+    """Return the TMDB genre ID for a genre name, or None if unknown."""
+    return GENRE_MAP.get(genre.lower().strip())
+
+
+def resolve_provider_id(provider: str) -> int | None:
+    """Return the TMDB provider ID for a provider name, or None if unknown."""
+    return PROVIDER_MAP.get(provider.lower().strip())
+
+
+def resolve_language_code(language: str) -> str | None:
+    """Return the ISO 639-1 code for a language name, or None if unknown.
+
+    Accepts both language names ('korean') and raw ISO codes ('ko').
+    """
+    normalized = language.lower().strip()
+    if len(normalized) == 2 and normalized.isalpha():
+        return normalized
+    return LANGUAGE_MAP.get(normalized)
+
+
+def resolve_country_code(country: str) -> str | None:
+    """Return the ISO 3166-1 code for a country name, or None if unknown.
+
+    Accepts both country names ('spain') and raw ISO codes ('ES').
+    """
+    normalized = country.strip()
+    if len(normalized) == 2 and normalized.isalpha():
+        return normalized.upper()
+    return COUNTRY_MAP.get(normalized.lower())
+
+
+def resolve_genres(names: list[str]) -> tuple[str | None, str | None]:
+    """Resolve a list of genre names to a pipe-separated string of TMDB IDs.
+
+    Returns (ids_string, None) on success, or (None, error_message) on failure.
+    """
+    ids = []
+    unknown = []
+    for name in names:
+        gid = resolve_genre_id(name)
+        if gid is None:
+            unknown.append(name)
+        else:
+            ids.append(str(gid))
+    if unknown:
+        return None, f"Género(s) no reconocido(s): {', '.join(unknown)}."
+    return "|".join(ids), None
+
+
+def resolve_providers(names: list[str]) -> tuple[str | None, str | None]:
+    """Resolve a list of provider names to a pipe-separated string of TMDB IDs.
+
+    Returns (ids_string, None) on success, or (None, error_message) on failure.
+    """
+    ids = []
+    unknown = []
+    for name in names:
+        pid = resolve_provider_id(name)
+        if pid is None:
+            unknown.append(name)
+        else:
+            ids.append(str(pid))
+    if unknown:
+        return None, f"Plataforma(s) no reconocida(s): {', '.join(unknown)}. Busca sin filtro de plataforma."
+    return "|".join(ids), None

@@ -15,7 +15,8 @@ from fastmcp import FastMCP
 
 from app.config import settings  # noqa: F401 — triggers .env load
 from app.models.movie import Movie
-from app.services.tmdb_service import resolve_provider_id, tmdb_service
+from app.services.tmdb_constants import resolve_provider_id
+from app.services.tmdb_service import tmdb_service
 
 mcp = FastMCP("tmdb")
 

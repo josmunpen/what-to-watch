@@ -2,7 +2,7 @@
 TMDB API connector.
 
 Uses the TMDB v3 REST API with a Bearer token (API Read Access Token).
-Genre IDs are stored statically – they have been stable for years.
+Resolvers and lookup tables live in tmdb_constants.py.
 """
 
 from typing import Any
@@ -11,46 +11,6 @@ import httpx
 
 from app.config import settings
 from app.models.movie import Movie
-from app.services.tmdb_constants import (
-    COUNTRY_MAP,
-    GENRE_MAP,
-    LANGUAGE_MAP,
-    PROVIDER_MAP,
-)
-
-
-def resolve_genre_id(genre: str) -> int | None:
-    """Return the TMDB genre ID for a genre name, or None if unknown."""
-    return GENRE_MAP.get(genre.lower().strip())
-
-
-def resolve_provider_id(provider: str) -> int | None:
-    """Return the TMDB provider ID for a provider name, or None if unknown."""
-    return PROVIDER_MAP.get(provider.lower().strip())
-
-
-def resolve_language_code(language: str) -> str | None:
-    """Return the ISO 639-1 code for a language name, or None if unknown.
-
-    Accepts both language names ('korean') and raw ISO codes ('ko').
-    """
-    normalized = language.lower().strip()
-    # Already a valid 2-letter ISO code?
-    if len(normalized) == 2 and normalized.isalpha():
-        return normalized
-    return LANGUAGE_MAP.get(normalized)
-
-
-def resolve_country_code(country: str) -> str | None:
-    """Return the ISO 3166-1 code for a country name, or None if unknown.
-
-    Accepts both country names ('spain') and raw ISO codes ('ES').
-    """
-    normalized = country.strip()
-    # Already a valid 2-letter ISO code?
-    if len(normalized) == 2 and normalized.isalpha():
-        return normalized.upper()
-    return COUNTRY_MAP.get(normalized.lower())
 
 
 class TMDBService:

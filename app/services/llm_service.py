@@ -7,17 +7,15 @@ from openai import OpenAI
 
 from app.config import settings
 from app.models.movie import Movie
-from app.services.tmdb_constants import VALID_SORT_BY
-from app.services.tmdb_service import (
-    TMDBService,
+from app.services.tmdb_constants import (
+    VALID_MONETIZATION_TYPES,
+    VALID_SORT_BY,
     resolve_country_code,
-    resolve_genre_id,
+    resolve_genres,
     resolve_language_code,
-    resolve_provider_id,
-    tmdb_service,
+    resolve_providers,
 )
-
-VALID_MONETIZATION_TYPES = {"flatrate", "free", "ads", "rent", "buy"}
+from app.services.tmdb_service import TMDBService, tmdb_service
 
 _PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
 _TOOLS_DIR = Path(__file__).parent.parent / "tools"
@@ -50,36 +48,6 @@ class LLMService:
             "get_movie_recommendations": self._get_movie_recommendations,
         }
 
-    def _resolve_providers(self, names: list[str]) -> str | None:
-        """Resolve a list of provider names to a pipe-separated string of IDs."""
-        ids = []
-        unknown = []
-        for name in names:
-            pid = resolve_provider_id(name)
-            if pid is None:
-                unknown.append(name)
-            else:
-                ids.append(str(pid))
-        if unknown:
-            unknown_str = ", ".join(unknown)
-            msg = f"Plataforma(s) no reconocida(s): {unknown_str}. Busca sin filtro de plataforma."
-            return None, msg
-        return "|".join(ids), None
-
-    def _resolve_genres(self, names: list[str]) -> tuple[str | None, str | None]:
-        """Resolve a list of genre names to a pipe-separated string of IDs."""
-        ids = []
-        unknown = []
-        for name in names:
-            gid = resolve_genre_id(name)
-            if gid is None:
-                unknown.append(name)
-            else:
-                ids.append(str(gid))
-        if unknown:
-            return None, f"Género(s) no reconocido(s): {', '.join(unknown)}."
-        return "|".join(ids), None
-
     def _search_movies_with_filters(
         self,
         with_genres: list[str] | None = None,
@@ -97,7 +65,7 @@ class LLMService:
         without_genres: list[str] | None = None,
         sort_by: str = "popularity.desc",
     ) -> str:
-        logger.debug(f"Tool called: search_movies_with_filters(with_genres={with_genres}, ...)")
+        logger.debug("Tool called: search_movies_with_filters ...)")
 
         # --- Validate sort_by ---
         if sort_by not in VALID_SORT_BY:
@@ -119,26 +87,29 @@ class LLMService:
         # --- Validate included genres ---
         with_genres_str: str | None = None
         if with_genres:
-            with_genres_str, err = self._resolve_genres(with_genres)
+            with_genres_str, err = resolve_genres(with_genres)
             if err:
                 return err
 
         # --- Validate providers ---
         providers_str: str | None = None
         if with_watch_providers:
-            providers_str, err = self._resolve_providers(with_watch_providers)
+            providers_str, err = resolve_providers(with_watch_providers)
             if err:
                 return err
 
         # --- Validate excluded genres ---
         without_genres_str: str | None = None
         if without_genres:
-            without_genres_str, err = self._resolve_genres(without_genres)
+            without_genres_str, err = resolve_genres(without_genres)
             if err:
                 return err
 
         # --- Validate monetization type ---
-        if with_watch_monetization_types and with_watch_monetization_types not in VALID_MONETIZATION_TYPES:
+        if (
+            with_watch_monetization_types
+            and with_watch_monetization_types not in VALID_MONETIZATION_TYPES
+        ):
             valid = ", ".join(sorted(VALID_MONETIZATION_TYPES))
             return (
                 f"Tipo de monetización no válido: '{with_watch_monetization_types}'."
