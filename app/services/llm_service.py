@@ -47,6 +47,10 @@ class LLMService:
             "search_movie_by_title": self._search_movie_by_title,
             "get_movie_recommendations": self._get_movie_recommendations,
             "get_movie_watch_providers": self._get_movie_watch_providers,
+            "get_trending_movies": self._get_trending_movies,
+            "get_movie_details": self._get_movie_details,
+            "get_similar_movies": self._get_similar_movies,
+            "get_now_playing_movies": self._get_now_playing_movies,
         }
 
     def _search_movies_with_filters(
@@ -173,6 +177,62 @@ class LLMService:
             label = labels.get(category, category)
             lines.append(f"- {label}: {', '.join(names)}")
         return "\n".join(lines)
+
+    def _get_trending_movies(self, time_window: str = "week") -> str:
+        logger.debug(f"Tool called: get_trending_movies(time_window={time_window})")
+        if time_window not in ("day", "week"):
+            return f"time_window no válido: '{time_window}'. Usa 'day' o 'week'."
+        movies = self._tmdb.get_trending_movies(time_window)
+        if not movies:
+            return "No se encontraron películas en tendencia."
+        return _format_movies(movies)
+
+    def _get_movie_details(self, movie_id: int) -> str:
+        logger.debug(f"Tool called: get_movie_details(movie_id={movie_id})")
+        details = self._tmdb.get_movie_details(movie_id)
+        if not details:
+            return f"No se encontraron detalles para la película con ID {movie_id}."
+
+        genres = ", ".join(g["name"] for g in details.get("genres", []))
+        runtime = details.get("runtime", 0)
+        hours, mins = divmod(runtime, 60) if runtime else (0, 0)
+        budget = details.get("budget", 0)
+        revenue = details.get("revenue", 0)
+        collection = details.get("belongs_to_collection")
+        collection_name = collection["name"] if collection else None
+
+        lines = [
+            f"**{details.get('title', '?')}** ({details.get('release_date', '?')[:4]})",
+            f"- Tagline: {details.get('tagline', 'N/A')}",
+            f"- Géneros: {genres}",
+            f"- Duración: {hours}h {mins}min",
+            f"- Puntuación: {details.get('vote_average', 0):.1f}/10 ({details.get('vote_count', 0)} votos)",
+            f"- Sinopsis: {details.get('overview', 'N/A')}",
+        ]
+        if budget:
+            lines.append(f"- Presupuesto: ${budget:,}")
+        if revenue:
+            lines.append(f"- Recaudación: ${revenue:,}")
+        if collection_name:
+            lines.append(f"- Colección: {collection_name}")
+        return "\n".join(lines)
+
+    def _get_similar_movies(self, movie_id: int) -> str:
+        logger.debug(f"Tool called: get_similar_movies(movie_id={movie_id})")
+        movies = self._tmdb.get_similar_movies(movie_id)
+        if not movies:
+            return f"No se encontraron películas similares para la película con ID {movie_id}."
+        return _format_movies(movies)
+
+    def _get_now_playing_movies(self, region: str = "ES") -> str:
+        logger.debug(f"Tool called: get_now_playing_movies(region={region})")
+        resolved_region = resolve_country_code(region)
+        if resolved_region is None:
+            return f"Región no reconocida: '{region}'. Usa un código ISO 3166-1 (e.g. 'ES', 'US') o nombre de país en inglés."
+        movies = self._tmdb.get_now_playing_movies(region=resolved_region)
+        if not movies:
+            return f"No se encontraron películas en cartelera en la región {resolved_region}."
+        return _format_movies(movies)
 
     def run_agent(self, user_message: str, history: list[dict] | None = None) -> str:
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]

@@ -16,10 +16,10 @@
 
 - [x] **`get_movie_recommendations`** — `GET /movie/{id}/recommendations`. Caso de uso: "Algo parecido a X". Usa el algoritmo curado de TMDB, mejor calidad que `/similar`. Requiere `movie_id` (obtenible con `search_movie_by_title`).
 - [x] **`get_movie_watch_providers`** — `GET /movie/{id}/watch/providers`. Caso de uso: "¿En qué plataformas está X?".
-- [ ] **`get_trending_movies`** — `GET /trending/movie/{time_window}` (`day` o `week`). Caso de uso: "¿Qué está de moda ahora?".
-- [ ] **`get_movie_details`** — `GET /movie/{id}`. Detalles completos: runtime, tagline, colección, etc.
-- [ ] **`get_similar_movies`** — `GET /movie/{id}/similar`. Complementa a `recommendations`, algoritmo por keywords/géneros.
-- [ ] **`get_now_playing_movies`** — `GET /movie/now_playing`. Caso de uso: "¿Qué hay en cines ahora?".
+- [x] **`get_trending_movies`** — `GET /trending/movie/{time_window}` (`day` o `week`). Caso de uso: "¿Qué está de moda ahora?".
+- [x] **`get_movie_details`** — `GET /movie/{id}`. Detalles completos: runtime, tagline, colección, etc.
+- [x] **`get_similar_movies`** — `GET /movie/{id}/similar`. Complementa a `recommendations`, algoritmo por keywords/géneros.
+- [x] **`get_now_playing_movies`** — `GET /movie/now_playing`. Caso de uso: "¿Qué hay en cines ahora?".
 
 **Media prioridad**
 

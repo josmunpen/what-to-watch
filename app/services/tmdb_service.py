@@ -166,6 +166,103 @@ class TMDBService:
                 ]
         return providers
 
+    def get_trending_movies(
+        self,
+        time_window: str = "week",
+        language: str = "en-US",
+    ) -> list[Movie]:
+        """Get trending movies for a given time window.
+
+        Args:
+            time_window: "day" or "week".
+
+        Raises:
+            httpx.HTTPStatusError – on non-2xx responses from TMDB.
+        """
+        params: dict[str, Any] = {"language": language}
+        response = self._client.get(f"/trending/movie/{time_window}", params=params)
+        response.raise_for_status()
+
+        results: list[dict[str, Any]] = response.json().get("results", [])
+        return [
+            Movie(
+                id=movie["id"],
+                title=movie["title"],
+                overview=movie.get("overview", ""),
+                release_date=movie.get("release_date", ""),
+                vote_average=movie.get("vote_average", 0.0),
+                genre_ids=movie.get("genre_ids", []),
+            )
+            for movie in results
+        ]
+
+    def get_movie_details(self, movie_id: int, language: str = "en-US") -> dict[str, Any]:
+        """Get full details for a movie.
+
+        Raises:
+            httpx.HTTPStatusError – on non-2xx responses from TMDB.
+        """
+        params: dict[str, Any] = {"language": language}
+        response = self._client.get(f"/movie/{movie_id}", params=params)
+        response.raise_for_status()
+        return response.json()
+
+    def get_similar_movies(
+        self,
+        movie_id: int,
+        page: int = 1,
+        language: str = "en-US",
+    ) -> list[Movie]:
+        """Get similar movies based on keywords and genres.
+
+        Raises:
+            httpx.HTTPStatusError – on non-2xx responses from TMDB.
+        """
+        params: dict[str, Any] = {"page": page, "language": language}
+        response = self._client.get(f"/movie/{movie_id}/similar", params=params)
+        response.raise_for_status()
+
+        results: list[dict[str, Any]] = response.json().get("results", [])
+        return [
+            Movie(
+                id=movie["id"],
+                title=movie["title"],
+                overview=movie.get("overview", ""),
+                release_date=movie.get("release_date", ""),
+                vote_average=movie.get("vote_average", 0.0),
+                genre_ids=movie.get("genre_ids", []),
+            )
+            for movie in results
+        ]
+
+    def get_now_playing_movies(
+        self,
+        region: str = "ES",
+        page: int = 1,
+        language: str = "en-US",
+    ) -> list[Movie]:
+        """Get movies currently in theatres.
+
+        Raises:
+            httpx.HTTPStatusError – on non-2xx responses from TMDB.
+        """
+        params: dict[str, Any] = {"page": page, "language": language, "region": region}
+        response = self._client.get("/movie/now_playing", params=params)
+        response.raise_for_status()
+
+        results: list[dict[str, Any]] = response.json().get("results", [])
+        return [
+            Movie(
+                id=movie["id"],
+                title=movie["title"],
+                overview=movie.get("overview", ""),
+                release_date=movie.get("release_date", ""),
+                vote_average=movie.get("vote_average", 0.0),
+                genre_ids=movie.get("genre_ids", []),
+            )
+            for movie in results
+        ]
+
     def get_movie_recommendations(
         self,
         movie_id: int,

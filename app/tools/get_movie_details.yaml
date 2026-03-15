@@ -1,0 +1,18 @@
+type: function
+function:
+  name: get_movie_details
+  description: >
+    Obtiene los detalles completos de una película: duración, tagline, sinopsis, géneros,
+    presupuesto, recaudación, colección, etc.
+    Úsala cuando el usuario quiera saber más sobre una película específica.
+    Primero usa search_movie_by_title para obtener el movie_id.
+  parameters:
+    type: object
+    properties:
+      movie_id:
+        type: integer
+        description: >
+          ID numérico de la película en TMDB.
+          Obtenible con search_movie_by_title.
+    required:
+      - movie_id

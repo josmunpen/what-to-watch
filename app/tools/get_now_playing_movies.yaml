@@ -1,0 +1,15 @@
+type: function
+function:
+  name: get_now_playing_movies
+  description: >
+    Obtiene las películas que están actualmente en cartelera (cines).
+    Úsala cuando el usuario pregunte qué hay en cines, qué se estrena, o qué películas están en cartelera ahora.
+  parameters:
+    type: object
+    properties:
+      region:
+        type: string
+        description: >
+          Código ISO 3166-1 del país para filtrar la cartelera por región (e.g. "ES", "US", "MX").
+          Default: "ES".
+    required: []

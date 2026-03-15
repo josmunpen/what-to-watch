@@ -1,0 +1,18 @@
+type: function
+function:
+  name: get_trending_movies
+  description: >
+    Obtiene las películas en tendencia (trending) de TMDB.
+    Úsala cuando el usuario pregunte qué está de moda, qué es popular ahora, o qué películas son tendencia.
+  parameters:
+    type: object
+    properties:
+      time_window:
+        type: string
+        enum:
+          - day
+          - week
+        description: >
+          Ventana de tiempo para las tendencias: "day" (hoy) o "week" (esta semana).
+          Default: "week".
+    required: []
