@@ -7,9 +7,12 @@ from openai import OpenAI
 
 from app.config import settings
 from app.models.movie import Movie
+from app.services.tmdb_constants import VALID_SORT_BY
 from app.services.tmdb_service import (
     TMDBService,
+    resolve_country_code,
     resolve_genre_id,
+    resolve_language_code,
     resolve_provider_id,
     tmdb_service,
 )
@@ -92,21 +95,42 @@ class LLMService:
         runtime_lte: int | None = None,
         with_watch_monetization_types: str | None = None,
         without_genres: list[str] | None = None,
+        sort_by: str = "popularity.desc",
     ) -> str:
         logger.debug(f"Tool called: search_movies_with_filters(genre={genre}, ...)")
 
+        # --- Validate sort_by ---
+        if sort_by not in VALID_SORT_BY:
+            valid = ", ".join(sorted(VALID_SORT_BY))
+            return f"sort_by no válido: '{sort_by}'. Valores válidos: {valid}."
+
+        # --- Validate watch_region ---
+        resolved_region = resolve_country_code(watch_region)
+        if resolved_region is None:
+            return f"Región no reconocida: '{watch_region}'. Usa un código ISO 3166-1 (e.g. 'ES', 'US') o nombre de país en inglés."
+
+        # --- Validate with_original_language ---
+        resolved_language: str | None = None
+        if with_original_language:
+            resolved_language = resolve_language_code(with_original_language)
+            if resolved_language is None:
+                return f"Idioma no reconocido: '{with_original_language}'. Usa un código ISO 639-1 (e.g. 'ko', 'fr') o nombre de idioma."
+
+        # --- Validate providers ---
         providers_str: str | None = None
         if with_watch_providers:
             providers_str, err = self._resolve_providers(with_watch_providers)
             if err:
                 return err
 
+        # --- Validate excluded genres ---
         without_genres_str: str | None = None
         if without_genres:
             without_genres_str, err = self._resolve_genres(without_genres)
             if err:
                 return err
 
+        # --- Validate monetization type ---
         if with_watch_monetization_types and with_watch_monetization_types not in VALID_MONETIZATION_TYPES:
             valid = ", ".join(sorted(VALID_MONETIZATION_TYPES))
             return (
@@ -117,18 +141,19 @@ class LLMService:
         try:
             movies = self._tmdb.discover_movies(
                 genre=genre,
-                watch_region=watch_region,
+                watch_region=resolved_region,
                 with_watch_providers=providers_str,
                 primary_release_year=primary_release_year,
                 release_date_gte=release_date_gte,
                 release_date_lte=release_date_lte,
                 vote_average_gte=vote_average_gte,
                 vote_count_gte=vote_count_gte,
-                with_original_language=with_original_language,
+                with_original_language=resolved_language,
                 runtime_gte=runtime_gte,
                 runtime_lte=runtime_lte,
                 with_watch_monetization_types=with_watch_monetization_types,
                 without_genres=without_genres_str,
+                sort_by=sort_by,
                 page=1,
             )
         except ValueError as e:

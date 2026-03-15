@@ -11,13 +11,16 @@ function:
       genre:
         type: string
         description: >
-          Género en inglés (e.g. 'horror', 'comedy', 'thriller', 'action', 'drama').
-          Omitir si el usuario no especifica género.
+          Género en inglés o español. Valores válidos: action, adventure, animation,
+          comedy, crime, documentary, drama, family, fantasy, history, horror, music,
+          mystery, romance, science fiction, sci-fi, thriller, tv movie, war, western
+          (y sus equivalentes en español). Omitir si el usuario no especifica género.
       watch_region:
         type: string
         description: >
-          Código ISO 3166-1 del país para filtrar disponibilidad en plataformas
-          (e.g. 'ES' para España, 'US' para Estados Unidos). Por defecto 'ES'.
+          Código ISO 3166-1 del país o nombre del país en inglés para filtrar
+          disponibilidad en plataformas (e.g. 'ES', 'US', 'spain', 'united states').
+          Por defecto 'ES'.
       with_watch_providers:
         type: array
         items:
@@ -54,8 +57,8 @@ function:
       with_original_language:
         type: string
         description: >
-          Código ISO 639-1 del idioma original (e.g. 'ko' para coreano, 'fr' para
-          francés, 'ja' para japonés, 'es' para español).
+          Código ISO 639-1 del idioma original o nombre del idioma en inglés/español
+          (e.g. 'ko', 'korean', 'coreano', 'fr', 'french', 'francés').
       runtime_gte:
         type: integer
         description: Duración mínima en minutos (e.g. 120 para películas largas).
@@ -74,6 +77,23 @@ function:
         items:
           type: string
         description: >
-          Géneros a excluir en inglés (e.g. ['comedy', 'horror']).
+          Géneros a excluir en inglés o español (e.g. ['comedy', 'horror']).
+          Mismos valores válidos que el parámetro 'genre'.
           Usar cuando el usuario descarte géneros explícitamente.
+      sort_by:
+        type: string
+        enum:
+          - popularity.desc
+          - popularity.asc
+          - vote_average.desc
+          - vote_average.asc
+          - primary_release_date.desc
+          - primary_release_date.asc
+          - revenue.desc
+          - revenue.asc
+        description: >
+          Criterio de ordenación. Por defecto 'popularity.desc'.
+          Usar 'vote_average.desc' cuando el usuario pida "las mejores" o "mejor valoradas"
+          (combinar con vote_count_gte para evitar películas con pocos votos).
+          Usar 'primary_release_date.desc' para las más recientes.
     required: []

@@ -5,10 +5,10 @@
 ### Validación de parámetros en `search_movies_with_filters`
 
 - [x] **`with_watch_monetization_types`** — Valores válidos: `flatrate`, `free`, `ads`, `rent`, `buy`. Actualmente sin validación, fallo silencioso si el LLM pasa otro valor. Opción: añadir `enum` en el YAML de la tool.
-- [ ] **`with_original_language`** — El LLM genera el código ISO 639-1 libremente. TMDB lo ignora silenciosamente si es incorrecto. Opción: crear `LANGUAGE_MAP` en `tmdb_constants.py` (como ya existe para géneros y providers) y validar antes de enviar.
-- [ ] **`sort_by`** — Hardcodeado a `popularity.desc`, no expuesto al LLM. Valores válidos: `popularity.desc`, `vote_average.desc`, `primary_release_date.desc`, etc. Valorar exponer con `enum` para que el agente pueda ordenar por valoración cuando el usuario pida "las mejores".
-- [ ] **`genre` / `without_genres`** — Funciona (lanza `ValueError` visible al LLM), pero valorar añadir la lista de géneros válidos directamente en el YAML para que el LLM no tenga que adivinar.
-- [ ] **`watch_region`** — El LLM genera el código ISO 3166-1 libremente. Existe `COUNTRY_MAP` en constants pero no se usa para este campo. Valorar usarlo para validar/resolver el valor.
+- [x] **`with_original_language`** — Creado `LANGUAGE_MAP` en `tmdb_constants.py` (EN/ES → ISO 639-1). Validación en `llm_service.py` con `resolve_language_code()` que acepta nombres e ISO codes.
+- [x] **`sort_by`** — Expuesto al LLM como enum en el YAML con 8 valores válidos. Validación en `llm_service.py` contra `VALID_SORT_BY`. Default: `popularity.desc`.
+- [x] **`genre` / `without_genres`** — Añadida lista completa de géneros válidos (EN + ES) en la descripción del YAML para que el LLM no tenga que adivinar.
+- [x] **`watch_region`** — Validación en `llm_service.py` con `resolve_country_code()` que usa `COUNTRY_MAP`. Acepta nombres ('spain') e ISO codes ('ES').
 
 ### Nuevos endpoints TMDB a implementar como tools
 
@@ -28,6 +28,14 @@
 - [ ] **`get_top_rated_movies`** — `GET /movie/top_rated`. Caso de uso: "Las mejores películas de todos los tiempos".
 - [ ] **`get_upcoming_movies`** — `GET /movie/upcoming`. Caso de uso: "¿Qué sale pronto?".
 - [ ] **`search_movies_by_keyword`** — `GET /search/keyword` + `GET /keyword/{id}/movies`. Búsqueda por concepto (e.g. "time travel", "heist").
+
+### Despliegue del backend en Koyeb
+
+- [ ] **Crear Dockerfile** — Dockerfile multi-stage con `python:3.11-slim` + `.dockerignore`. Comando de inicio: `uvicorn main:app --host 0.0.0.0 --port 8000`.
+- [ ] **Configurar secrets en Koyeb** — Mapear variables de `.env` (`TMDB_API_KEY`, `OPENAI_API_KEY`, `LANGSMITH_API_KEY`, etc.) como secrets en Koyeb.
+- [ ] **Ajustar CORS y config para producción** — Permitir dominio de Koyeb en CORS. Verificar que `pydantic-settings` funcione sin archivo `.env` (solo env vars).
+- [ ] **Desplegar en Koyeb** — Conectar repo GitHub, configurar instancia free (512MB RAM, 0.1 vCPU), puerto 8000, secrets y deploy.
+- [ ] **Verificar deploy y health check** — Crear endpoint `/health`, probar `POST /chat` desde exterior, validar conexiones a TMDB y OpenAI.
 
 ### Arquitectura del agente
 

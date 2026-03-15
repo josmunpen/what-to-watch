@@ -88,6 +88,108 @@ COUNTRY_MAP: dict[str, str] = {
 }
 
 # ---------------------------------------------------------------------------
+# Languages — name (EN/ES) → ISO 639-1 code
+# Top languages by film production volume
+# ---------------------------------------------------------------------------
+LANGUAGE_MAP: dict[str, str] = {
+    # English names
+    "english": "en",
+    "spanish": "es",
+    "french": "fr",
+    "german": "de",
+    "italian": "it",
+    "portuguese": "pt",
+    "japanese": "ja",
+    "korean": "ko",
+    "chinese": "zh",
+    "mandarin": "zh",
+    "cantonese": "cn",
+    "hindi": "hi",
+    "arabic": "ar",
+    "russian": "ru",
+    "turkish": "tr",
+    "thai": "th",
+    "swedish": "sv",
+    "danish": "da",
+    "norwegian": "no",
+    "finnish": "fi",
+    "dutch": "nl",
+    "polish": "pl",
+    "czech": "cs",
+    "romanian": "ro",
+    "greek": "el",
+    "hebrew": "he",
+    "persian": "fa",
+    "indonesian": "id",
+    "malay": "ms",
+    "vietnamese": "vi",
+    "tagalog": "tl",
+    "tamil": "ta",
+    "telugu": "te",
+    "bengali": "bn",
+    # Spanish names
+    "inglés": "en",
+    "ingles": "en",
+    "español": "es",
+    "espanol": "es",
+    "francés": "fr",
+    "frances": "fr",
+    "alemán": "de",
+    "aleman": "de",
+    "italiano": "it",
+    "portugués": "pt",
+    "portugues": "pt",
+    "japonés": "ja",
+    "japones": "ja",
+    "coreano": "ko",
+    "chino": "zh",
+    "mandarín": "zh",
+    "mandarin": "zh",
+    "cantonés": "cn",
+    "cantones": "cn",
+    "árabe": "ar",
+    "arabe": "ar",
+    "ruso": "ru",
+    "turco": "tr",
+    "tailandés": "th",
+    "tailandes": "th",
+    "sueco": "sv",
+    "danés": "da",
+    "danes": "da",
+    "noruego": "no",
+    "finlandés": "fi",
+    "finlandes": "fi",
+    "holandés": "nl",
+    "holandes": "nl",
+    "neerlandés": "nl",
+    "neerlandes": "nl",
+    "polaco": "pl",
+    "checo": "cs",
+    "rumano": "ro",
+    "griego": "el",
+    "hebreo": "he",
+    "persa": "fa",
+    "indonesio": "id",
+    "malayo": "ms",
+    "vietnamita": "vi",
+    "tagalo": "tl",
+}
+
+# ---------------------------------------------------------------------------
+# Valid sort_by values for /discover/movie
+# ---------------------------------------------------------------------------
+VALID_SORT_BY: set[str] = {
+    "popularity.desc",
+    "popularity.asc",
+    "vote_average.desc",
+    "vote_average.asc",
+    "primary_release_date.desc",
+    "primary_release_date.asc",
+    "revenue.desc",
+    "revenue.asc",
+}
+
+# ---------------------------------------------------------------------------
 # Streaming providers — name (EN/ES) → TMDB provider ID
 # ---------------------------------------------------------------------------
 PROVIDER_MAP: dict[str, int] = {

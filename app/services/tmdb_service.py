@@ -11,7 +11,13 @@ import httpx
 
 from app.config import settings
 from app.models.movie import Movie
-from app.services.tmdb_constants import GENRE_MAP, PROVIDER_MAP
+from app.services.tmdb_constants import (
+    COUNTRY_MAP,
+    GENRE_MAP,
+    LANGUAGE_MAP,
+    PROVIDER_MAP,
+    VALID_SORT_BY,
+)
 
 # Reverse map for display purposes
 _ID_TO_GENRE: dict[int, str] = {v: k for k, v in GENRE_MAP.items() if k != "sci-fi"}
@@ -25,6 +31,30 @@ def resolve_genre_id(genre: str) -> int | None:
 def resolve_provider_id(provider: str) -> int | None:
     """Return the TMDB provider ID for a provider name, or None if unknown."""
     return PROVIDER_MAP.get(provider.lower().strip())
+
+
+def resolve_language_code(language: str) -> str | None:
+    """Return the ISO 639-1 code for a language name, or None if unknown.
+
+    Accepts both language names ('korean') and raw ISO codes ('ko').
+    """
+    normalized = language.lower().strip()
+    # Already a valid 2-letter ISO code?
+    if len(normalized) == 2 and normalized.isalpha():
+        return normalized
+    return LANGUAGE_MAP.get(normalized)
+
+
+def resolve_country_code(country: str) -> str | None:
+    """Return the ISO 3166-1 code for a country name, or None if unknown.
+
+    Accepts both country names ('spain') and raw ISO codes ('ES').
+    """
+    normalized = country.strip()
+    # Already a valid 2-letter ISO code?
+    if len(normalized) == 2 and normalized.isalpha():
+        return normalized.upper()
+    return COUNTRY_MAP.get(normalized.lower())
 
 
 class TMDBService:
