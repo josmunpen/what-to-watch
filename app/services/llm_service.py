@@ -82,7 +82,7 @@ class LLMService:
 
     def _search_movies_with_filters(
         self,
-        genre: str | None = None,
+        with_genres: list[str] | None = None,
         watch_region: str = "ES",
         with_watch_providers: list[str] | None = None,
         primary_release_year: int | None = None,
@@ -97,7 +97,7 @@ class LLMService:
         without_genres: list[str] | None = None,
         sort_by: str = "popularity.desc",
     ) -> str:
-        logger.debug(f"Tool called: search_movies_with_filters(genre={genre}, ...)")
+        logger.debug(f"Tool called: search_movies_with_filters(with_genres={with_genres}, ...)")
 
         # --- Validate sort_by ---
         if sort_by not in VALID_SORT_BY:
@@ -115,6 +115,13 @@ class LLMService:
             resolved_language = resolve_language_code(with_original_language)
             if resolved_language is None:
                 return f"Idioma no reconocido: '{with_original_language}'. Usa un código ISO 639-1 (e.g. 'ko', 'fr') o nombre de idioma."
+
+        # --- Validate included genres ---
+        with_genres_str: str | None = None
+        if with_genres:
+            with_genres_str, err = self._resolve_genres(with_genres)
+            if err:
+                return err
 
         # --- Validate providers ---
         providers_str: str | None = None
@@ -138,26 +145,23 @@ class LLMService:
                 f" Valores válidos: {valid}."
             )
 
-        try:
-            movies = self._tmdb.discover_movies(
-                genre=genre,
-                watch_region=resolved_region,
-                with_watch_providers=providers_str,
-                primary_release_year=primary_release_year,
-                release_date_gte=release_date_gte,
-                release_date_lte=release_date_lte,
-                vote_average_gte=vote_average_gte,
-                vote_count_gte=vote_count_gte,
-                with_original_language=resolved_language,
-                runtime_gte=runtime_gte,
-                runtime_lte=runtime_lte,
-                with_watch_monetization_types=with_watch_monetization_types,
-                without_genres=without_genres_str,
-                sort_by=sort_by,
-                page=1,
-            )
-        except ValueError as e:
-            return str(e)
+        movies = self._tmdb.discover_movies(
+            with_genres=with_genres_str,
+            watch_region=resolved_region,
+            with_watch_providers=providers_str,
+            primary_release_year=primary_release_year,
+            release_date_gte=release_date_gte,
+            release_date_lte=release_date_lte,
+            vote_average_gte=vote_average_gte,
+            vote_count_gte=vote_count_gte,
+            with_original_language=resolved_language,
+            runtime_gte=runtime_gte,
+            runtime_lte=runtime_lte,
+            with_watch_monetization_types=with_watch_monetization_types,
+            without_genres=without_genres_str,
+            sort_by=sort_by,
+            page=1,
+        )
         return _format_movies(movies)
 
     def _search_movie_by_title(self, query: str) -> str:

@@ -8,12 +8,15 @@ function:
   parameters:
     type: object
     properties:
-      genre:
-        type: string
+      with_genres:
+        type: array
+        items:
+          type: string
         description: >
-          Género en inglés o español. Valores válidos: action, adventure, animation,
-          comedy, crime, documentary, drama, family, fantasy, history, horror, music,
-          mystery, romance, science fiction, sci-fi, thriller, tv movie, war, western
+          Géneros a incluir en inglés o español (e.g. ['horror', 'thriller']).
+          Valores válidos: action, adventure, animation, comedy, crime, documentary,
+          drama, family, fantasy, history, horror, music, mystery, romance,
+          science fiction, sci-fi, thriller, tv movie, war, western
           (y sus equivalentes en español). Omitir si el usuario no especifica género.
       watch_region:
         type: string

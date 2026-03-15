@@ -16,11 +16,7 @@ from app.services.tmdb_constants import (
     GENRE_MAP,
     LANGUAGE_MAP,
     PROVIDER_MAP,
-    VALID_SORT_BY,
 )
-
-# Reverse map for display purposes
-_ID_TO_GENRE: dict[int, str] = {v: k for k, v in GENRE_MAP.items() if k != "sci-fi"}
 
 
 def resolve_genre_id(genre: str) -> int | None:
@@ -75,7 +71,7 @@ class TMDBService:
 
     def discover_movies(
         self,
-        genre: str | None = None,
+        with_genres: str | None = None,
         watch_region: str | None = None,
         with_watch_providers: str | None = None,
         primary_release_year: int | None = None,
@@ -95,24 +91,19 @@ class TMDBService:
         """
         Query TMDB /discover/movie with rich filtering options.
 
+        All ID-based parameters (with_genres, without_genres, with_watch_providers)
+        expect pre-resolved pipe-separated ID strings.
+
         Raises:
-            ValueError  – if the genre name is not recognised.
             httpx.HTTPStatusError – on non-2xx responses from TMDB.
         """
-        genre_id: int | None = None
-        if genre is not None:
-            genre_id = resolve_genre_id(genre)
-            if genre_id is None:
-                available = ", ".join(sorted(set(GENRE_MAP.keys())))
-                raise ValueError(f"Unknown genre '{genre}'. Available genres: {available}")
-
         params: dict[str, Any] = {
             "sort_by": sort_by,
             "language": language,
             "page": page,
         }
-        if genre_id is not None:
-            params["with_genres"] = genre_id
+        if with_genres is not None:
+            params["with_genres"] = with_genres
         if watch_region is not None:
             params["watch_region"] = watch_region
         if with_watch_providers is not None:
