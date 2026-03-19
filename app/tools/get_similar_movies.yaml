@@ -2,9 +2,11 @@ type: function
 function:
   name: get_similar_movies
   description: >
-    Obtiene películas similares basándose en keywords y géneros (algoritmo de TMDB).
-    Complementa a get_movie_recommendations: esta tool usa similitud por metadatos,
-    mientras que recommendations usa un algoritmo curado.
+    Obtiene películas similares basándose estrictamente en géneros y keywords compartidos
+    (content-based filtering). Úsala cuando el usuario quiera películas del mismo género o
+    temática que una dada, por ejemplo: "más películas de ciencia ficción como X" o
+    "algo con la misma temática que X". Los resultados se mantienen dentro de los mismos
+    géneros que la película de referencia.
     Primero usa search_movie_by_title para obtener el movie_id.
   parameters:
     type: object

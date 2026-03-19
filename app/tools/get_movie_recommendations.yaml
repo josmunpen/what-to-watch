@@ -2,8 +2,10 @@ type: function
 function:
   name: get_movie_recommendations
   description: >
-    Obtiene recomendaciones de películas similares usando el algoritmo curado de TMDB.
-    Úsala cuando el usuario quiera algo "parecido a X" o "como X".
+    Obtiene recomendaciones personalizadas para una película usando el algoritmo curado de TMDB
+    (collaborative filtering). Úsala como primera opción cuando el usuario diga "algo parecido a X",
+    "películas como X", o "recomiéndame algo como X". Los resultados pueden incluir películas de
+    géneros distintos si encajan temáticamente.
     Primero usa search_movie_by_title para obtener el movie_id, luego llama a esta tool.
   parameters:
     type: object
