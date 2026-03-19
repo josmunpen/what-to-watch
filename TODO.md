@@ -23,7 +23,7 @@
 
 **Media prioridad**
 
-- [ ] **T-012** · **`search_person` + `get_person_movie_credits`** — `GET /search/person` + `GET /person/{id}/movie_credits`. Caso de uso: "Películas de Villeneuve" / "con Cate Blanchett". Son dos llamadas encadenadas.
+- [x] **T-012** · **`search_person` + `get_person_movie_credits`** — `GET /search/person` + `GET /person/{id}/movie_credits`. Caso de uso: "Películas de Villeneuve" / "con Cate Blanchett". Son dos llamadas encadenadas.
 - [ ] **T-013** · **`get_movie_credits`** — `GET /movie/{id}/credits`. Saber quién dirige/actúa en una peli concreta.
 - [ ] **T-014** · **`get_top_rated_movies`** — `GET /movie/top_rated`. Caso de uso: "Las mejores películas de todos los tiempos".
 - [ ] **T-015** · **`get_upcoming_movies`** — `GET /movie/upcoming`. Caso de uso: "¿Qué sale pronto?".
@@ -45,18 +45,24 @@
 ### Testing
 
 - [x] **T-024** · **Tests unitarios para function calls** — Testear los resolvers de `tmdb_constants.py` (`resolve_genres`, `resolve_providers`, `resolve_language_code`, `resolve_country_code`) y la validación de parámetros en `llm_service._search_movies_with_filters` (sort_by inválido, idioma no reconocido, región inválida, género desconocido, monetización inválida). Mockear `TMDBService` para aislar la lógica de validación.
-- [ ] **T-025** · **Tests unitarios para tools nuevas** — Testear los wrappers de `llm_service.py` para cada tool: `_get_trending_movies` (validación de time_window), `_get_movie_details` (formateo de detalles), `_get_similar_movies`, `_get_movie_recommendations`, `_get_movie_watch_providers` (validación de región, formateo de providers), `_get_now_playing_movies` (validación de región). Mockear `TMDBService`.
+- [ ] **T-025** · **Tests para `_get_trending_movies`** — Validación de `time_window` (solo `day`/`week`), respuesta vacía, formateo correcto. Mockear `TMDBService.get_trending_movies`.
+- [ ] **T-026** · **Tests para `_get_movie_details`** — Formateo de detalles (runtime, tagline, presupuesto, recaudación, colección), respuesta vacía. Mockear `TMDBService.get_movie_details`.
+- [ ] **T-027** · **Tests para `_get_similar_movies`** — Respuesta con películas, respuesta vacía. Mockear `TMDBService.get_similar_movies`.
+- [ ] **T-028** · **Tests para `_get_movie_recommendations`** — Respuesta con películas, respuesta vacía. Mockear `TMDBService.get_movie_recommendations`.
+- [ ] **T-029** · **Tests para `_get_movie_watch_providers`** — Validación de región, formateo de categorías (suscripción, alquiler, compra…), respuesta vacía. Mockear `TMDBService.get_movie_watch_providers`.
+- [ ] **T-030** · **Tests para `_get_now_playing_movies`** — Validación de región, respuesta con películas, respuesta vacía. Mockear `TMDBService.get_now_playing_movies`.
+- [ ] **T-031** · **Tests para `_search_movie_by_title`** — Respuesta con películas, respuesta vacía. Mockear `TMDBService.search_movies`.
 
 ### Revisión de tools
 
-- [ ] **T-026** · **Revisar `get_similar_movies`** — Actualmente no se usa nunca porque `get_movie_recommendations` cubre el mismo caso de uso ("algo parecido a X"). Decidir si eliminarla, diferenciar mejor los prompts de ambas tools para que el LLM elija según contexto, o fusionarlas en una sola tool que combine ambos resultados.
-- [ ] **T-027** · **Revisar `get_trending_movies`** — Posible solapamiento con `get_now_playing_movies`. Verificar si trending ya cubre el caso de "en cartelera" o si aportan datos distintos (trending = popularidad online vs now_playing = cartelera real). Decidir si mantener ambas o consolidar.
+- [x] **T-032** · **Revisar `get_similar_movies`** — Decisión: mantener ambas. Se diferenciaron las descriptions de los YAMLs: `recommendations` usa collaborative filtering (primera opción para "algo como X"), `similar` usa content-based filtering por géneros/keywords (para "más del mismo género/temática"). No se solapan.
+- [x] **T-033** · **Revisar `get_trending_movies`** — Decisión: mantener ambas. Son endpoints distintos: `trending` = popularidad online en TMDB (puede incluir pelis antiguas virales), `now_playing` = cartelera real de cines filtrable por región. No se solapan.
 
 ### UX / Registro de usuario
 
 **Baja prioridad**
 
-- [ ] **T-028** · **Selector de región en registro** — Permitir al usuario seleccionar su país/región en el formulario de registro. Actualmente `watch_region` está hardcodeado a `'ES'` como default. Cuando exista perfil de usuario, usar su región configurada en lugar del default.
+- [ ] **T-034** · **Selector de región en registro** — Permitir al usuario seleccionar su país/región en el formulario de registro. Actualmente `watch_region` está hardcodeado a `'ES'` como default. Cuando exista perfil de usuario, usar su región configurada en lugar del default.
 
 ## En progreso
 

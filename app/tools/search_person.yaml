@@ -1,0 +1,19 @@
+type: function
+function:
+  name: search_person
+  description: >
+    Busca una persona (actor, director, escritor, etc.) por nombre en TMDB.
+    Devuelve su ID de TMDB y algunas películas conocidas.
+    Úsala cuando el usuario mencione un nombre de persona y necesites su person_id
+    para llamar a get_person_movie_credits.
+    Ejemplos: "Películas de Denis Villeneuve", "con Cate Blanchett", "dirigidas por Nolan".
+  parameters:
+    type: object
+    properties:
+      query:
+        type: string
+        description: >
+          Nombre de la persona a buscar (actor, director, guionista, etc.).
+          Ejemplos: "Denis Villeneuve", "Cate Blanchett", "Christopher Nolan".
+    required:
+      - query

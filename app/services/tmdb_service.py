@@ -292,6 +292,76 @@ class TMDBService:
         ]
 
 
+    def search_person(
+        self,
+        query: str,
+        language: str = "en-US",
+    ) -> list[dict[str, Any]]:
+        """Search for a person (actor, director, etc.) by name.
+
+        Returns a list of dicts with keys: id, name, known_for_department,
+        known_for (list of movie titles).
+
+        Raises:
+            httpx.HTTPStatusError – on non-2xx responses from TMDB.
+        """
+        params: dict[str, Any] = {"query": query, "language": language}
+        response = self._client.get("/search/person", params=params)
+        response.raise_for_status()
+
+        results: list[dict[str, Any]] = response.json().get("results", [])
+        return [
+            {
+                "id": p["id"],
+                "name": p["name"],
+                "known_for_department": p.get("known_for_department", ""),
+                "known_for": [
+                    kf.get("title") or kf.get("name", "")
+                    for kf in p.get("known_for", [])
+                    if kf.get("title") or kf.get("name")
+                ],
+            }
+            for p in results
+        ]
+
+    def get_person_movie_credits(
+        self,
+        person_id: int,
+        language: str = "en-US",
+    ) -> dict[str, list[Movie]]:
+        """Get movie credits (cast and crew) for a person.
+
+        Returns a dict with keys 'cast' and 'crew', each a list of Movie objects.
+
+        Raises:
+            httpx.HTTPStatusError – on non-2xx responses from TMDB.
+        """
+        params: dict[str, Any] = {"language": language}
+        response = self._client.get(f"/person/{person_id}/movie_credits", params=params)
+        response.raise_for_status()
+
+        data = response.json()
+
+        def _to_movies(items: list[dict[str, Any]]) -> list[Movie]:
+            return [
+                Movie(
+                    id=m["id"],
+                    title=m["title"],
+                    overview=m.get("overview", ""),
+                    release_date=m.get("release_date", ""),
+                    vote_average=m.get("vote_average", 0.0),
+                    genre_ids=m.get("genre_ids", []),
+                )
+                for m in items
+                if m.get("title")
+            ]
+
+        return {
+            "cast": _to_movies(data.get("cast", [])),
+            "crew": _to_movies(data.get("crew", [])),
+        }
+
+
 # Singleton — created once when the module is first imported
 tmdb_service = TMDBService()
 

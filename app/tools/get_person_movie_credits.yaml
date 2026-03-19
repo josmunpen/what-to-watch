@@ -1,0 +1,29 @@
+type: function
+function:
+  name: get_person_movie_credits
+  description: >
+    Obtiene la filmografía completa (como actor/actriz y como equipo técnico) de una persona
+    usando su ID de TMDB. Primero usa search_person para obtener el person_id,
+    luego llama a esta tool.
+    Caso de uso: "Películas de Villeneuve", "filmografía de Meryl Streep",
+    "¿en qué películas ha actuado X?", "películas dirigidas por Y".
+  parameters:
+    type: object
+    properties:
+      person_id:
+        type: integer
+        description: >
+          ID numérico de la persona en TMDB. Obtenible con search_person.
+      role:
+        type: string
+        enum:
+          - cast
+          - crew
+          - both
+        description: >
+          Qué parte de la filmografía mostrar:
+          - "cast": películas en las que aparece como actor/actriz (default).
+          - "crew": películas en las que trabajó como director, guionista, productor, etc.
+          - "both": devuelve ambas listas.
+    required:
+      - person_id

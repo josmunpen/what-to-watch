@@ -51,6 +51,8 @@ class LLMService:
             "get_movie_details": self._get_movie_details,
             "get_similar_movies": self._get_similar_movies,
             "get_now_playing_movies": self._get_now_playing_movies,
+            "search_person": self._search_person,
+            "get_person_movie_credits": self._get_person_movie_credits,
         }
 
     def _search_movies_with_filters(
@@ -233,6 +235,43 @@ class LLMService:
         if not movies:
             return f"No se encontraron películas en cartelera en la región {resolved_region}."
         return _format_movies(movies)
+
+    def _search_person(self, query: str) -> str:
+        logger.debug(f"Tool called: search_person(query={query})")
+        results = self._tmdb.search_person(query)
+        if not results:
+            return f"No se encontró ninguna persona con el nombre '{query}'."
+        lines = []
+        for p in results[:5]:
+            known_for = ", ".join(p["known_for"][:3]) if p["known_for"] else "N/A"
+            lines.append(
+                f"- {p['name']} (ID: {p['id']}) [{p['known_for_department']}] — Conocido/a por: {known_for}"
+            )
+        return "\n".join(lines)
+
+    def _get_person_movie_credits(self, person_id: int, role: str = "cast") -> str:
+        logger.debug(f"Tool called: get_person_movie_credits(person_id={person_id}, role={role})")
+        if role not in ("cast", "crew", "both"):
+            return f"Rol no válido: '{role}'. Usa 'cast', 'crew' o 'both'."
+
+        credits = self._tmdb.get_person_movie_credits(person_id)
+        sections = []
+
+        if role in ("cast", "both"):
+            movies = sorted(credits["cast"], key=lambda m: m.vote_average, reverse=True)
+            if movies:
+                sections.append("**Como actor/actriz:**\n" + _format_movies(movies))
+            else:
+                sections.append("**Como actor/actriz:** Sin créditos.")
+
+        if role in ("crew", "both"):
+            movies = sorted(credits["crew"], key=lambda m: m.vote_average, reverse=True)
+            if movies:
+                sections.append("**Como equipo técnico:**\n" + _format_movies(movies))
+            else:
+                sections.append("**Como equipo técnico:** Sin créditos.")
+
+        return "\n\n".join(sections) if sections else "No se encontraron créditos."
 
     def run_agent(self, user_message: str, history: list[dict] | None = None) -> str:
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]
