@@ -32,7 +32,7 @@ def _format_movies(movies: list[Movie]) -> str:
     for m in movies[:10]:
         year = m.release_date[:4] if m.release_date else "?"
         overview = m.overview[:150] + "..." if len(m.overview) > 150 else m.overview
-        lines.append(f"- {m.title} ({year}) [score: {m.vote_average:.1f}]: {overview}")
+        lines.append(f"- [id:{m.id}] {m.title} ({year}) [score: {m.vote_average:.1f}]: {overview}")
     return "\n".join(lines) if lines else "No movies found for that genre."
 
 
