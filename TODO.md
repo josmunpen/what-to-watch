@@ -31,7 +31,7 @@
 
 ### Despliegue del backend en Koyeb
 
-- [ ] **T-017** · **Crear Dockerfile** — Dockerfile multi-stage con `python:3.11-slim` + `.dockerignore`. Comando de inicio: `uvicorn main:app --host 0.0.0.0 --port 8000`.
+- [x] **T-017** · **Crear Dockerfile** — Dockerfile multi-stage con `python:3.11-slim` + `.dockerignore`. Comando de inicio: `uvicorn main:app --host 0.0.0.0 --port 8000`.
 - [ ] **T-018** · **Configurar secrets en Koyeb** — Mapear variables de `.env` (`TMDB_API_KEY`, `OPENAI_API_KEY`, `LANGSMITH_API_KEY`, etc.) como secrets en Koyeb.
 - [ ] **T-019** · **Ajustar CORS y config para producción** — Permitir dominio de Koyeb en CORS. Verificar que `pydantic-settings` funcione sin archivo `.env` (solo env vars).
 - [ ] **T-020** · **Desplegar en Koyeb** — Conectar repo GitHub, configurar instancia free (512MB RAM, 0.1 vCPU), puerto 8000, secrets y deploy.
